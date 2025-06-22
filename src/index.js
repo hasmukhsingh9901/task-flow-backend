@@ -9,10 +9,10 @@ import bcrypt from 'bcryptjs';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { PORT } from './config/env.js';
-import dotenv from 'dotenv';
+
 import connectDB from './config/db.js';
 
-dotenv.config({ path: `.env` });
+
 
 const app = express();
 const port = 3000
