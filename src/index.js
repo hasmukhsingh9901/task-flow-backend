@@ -3,6 +3,7 @@ import express from 'express';
 import hbs from 'hbs';
 import path from 'path';
 import cors from 'cors';
+import morgan from 'morgan';
 
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -20,6 +21,8 @@ const port = 3000
 connectDB()
 app.use(cors());
 app.use(express.json());
+app.use(cors());
+app.use(morgan("dev"))
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -32,7 +35,7 @@ app.get('/', (req, res) => {
 });
 
 app.use("/auth/v1", authRouter)
-app.use("/task-flow/v1", taskRouter)
+app.use("/api/v1", taskRouter)
 
 app.listen(PORT, () => {
     console.log(`Server running at :${PORT}`);

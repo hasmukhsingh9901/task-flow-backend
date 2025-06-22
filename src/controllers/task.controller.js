@@ -1,7 +1,6 @@
 import Task from "../models/task.model.js";
-import User from "../models/user.model.js";
 
-const tasks = async (req, res, next) => {
+const createTask = async (req, res) => {
     try {
         const { title, description, status } = req.body;
         if (!title) {
@@ -22,7 +21,7 @@ const tasks = async (req, res, next) => {
     }
 };
 
-const fetchAllTasks = async (req, res, next) => {
+const fetchAllTasks = async (req, res) => {
     try {
         const { status, search } = req.query;
         let query = { userId: req.user._id };
@@ -42,7 +41,7 @@ const fetchAllTasks = async (req, res, next) => {
     }
 };
 
-const task = async (req, res, next) => {
+const updateTask = async (req, res) => {
     try {
         const { taskId } = req.params;
         const { title, description, status } = req.body;
@@ -65,9 +64,9 @@ const task = async (req, res, next) => {
     } catch (error) {
         res.status(500).json({ message: 'Server error' });
     }
-}
+};
 
-const removeTask = async (req, res, next) => {
+const removeTask = async (req, res) => {
     try {
         const { taskId } = req.params;
         const task = await Task.findById(taskId);
@@ -85,6 +84,6 @@ const removeTask = async (req, res, next) => {
     } catch (error) {
         res.status(500).json({ message: 'Server error' });
     }
-}
+};
 
-export { fetchAllTasks, removeTask, task, tasks };
+export { fetchAllTasks, removeTask, updateTask, createTask };

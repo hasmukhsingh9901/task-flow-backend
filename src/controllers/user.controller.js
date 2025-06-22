@@ -16,7 +16,6 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ message: 'Email already exists' });
     }
 
-    // Restrict admin role to one user during registration
     if (role === 'admin') {
       const adminExists = await User.findOne({ role: 'admin' });
       if (adminExists) {
@@ -35,6 +34,7 @@ const registerUser = async (req, res) => {
 
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
+    console.error('Register error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -62,12 +62,10 @@ const loginUser = async (req, res) => {
       { expiresIn: REFRESH_TOKEN_EXPIRY }
     );
 
-    // Hash refresh token
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
     user.refreshToken = hashedRefreshToken;
     await user.save();
 
-    
     const userLog = new UserLog({
       userId: user._id,
       loginTime: new Date(),
@@ -84,6 +82,7 @@ const loginUser = async (req, res) => {
       user: { id: user._id, username: user.username, role: user.role }
     });
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -112,13 +111,13 @@ const refreshToken = async (req, res) => {
       { expiresIn: REFRESH_TOKEN_EXPIRY }
     );
 
-    // Rotate refresh token
     const hashedNewRefreshToken = await bcrypt.hash(newRefreshToken, 10);
     user.refreshToken = hashedNewRefreshToken;
     await user.save();
 
     res.status(200).json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
   } catch (error) {
+    console.error('Refresh token error:', error);
     res.status(403).json({ message: 'Invalid or expired refresh token' });
   }
 };
@@ -136,7 +135,6 @@ const logoutUser = async (req, res) => {
       user.refreshToken = null;
       await user.save();
 
-      
       const userLog = await UserLog.findOne({ userId: user._id, logoutTime: null });
       if (userLog) {
         userLog.logoutTime = new Date();
@@ -146,6 +144,7 @@ const logoutUser = async (req, res) => {
 
     res.status(200).json({ message: 'Logged out successfully' });
   } catch (error) {
+    console.error('Logout error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -153,25 +152,28 @@ const logoutUser = async (req, res) => {
 const toggleUserRole = async (req, res) => {
   try {
     const { userId } = req.params;
+    console.log('Toggling role for userId:', userId); // Debug log
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-   
+    console.log('Current role:', user.role); // Debug log
     if (user.role === 'admin') {
       const adminCount = await User.countDocuments({ role: 'admin' });
+      console.log('Admin count:', adminCount); // Debug log
       if (adminCount <= 1) {
         return res.status(403).json({ message: 'Cannot demote the only admin' });
       }
     }
 
-    // Toggle role
     user.role = user.role === 'admin' ? 'user' : 'admin';
     await user.save();
+    console.log('New role:', user.role); // Debug log
 
     res.status(200).json({ message: `User role updated to ${user.role}`, user: { id: user._id, username: user.username, role: user.role } });
   } catch (error) {
+    console.error('Toggle role error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -181,6 +183,7 @@ const getUserLogs = async (req, res) => {
     const logs = await UserLog.find().populate('userId', 'username email role');
     res.status(200).json(logs);
   } catch (error) {
+    console.error('Get user logs error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -196,8 +199,19 @@ const deleteUserLog = async (req, res) => {
     await log.deleteOne();
     res.status(200).json({ message: 'Log deleted successfully' });
   } catch (error) {
+    console.error('Delete user log error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
 
-export { registerUser, loginUser, refreshToken, logoutUser, toggleUserRole, getUserLogs, deleteUserLog };
+const getUsers = async (req, res) => {
+  try {
+    const users = await User.find().select('username role _id');
+    res.status(200).json(users);
+  } catch (error) {
+    console.error('Get users error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export { registerUser, loginUser, refreshToken, logoutUser, toggleUserRole, getUserLogs, deleteUserLog, getUsers };
