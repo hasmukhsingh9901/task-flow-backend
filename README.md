@@ -33,3 +33,16 @@
 | dotenv      | Environment config          |
 | cors        | Cross-Origin Resource Sharing|
 
+
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/your-username/task-flow.git
+cd task-flow/server
+
+
