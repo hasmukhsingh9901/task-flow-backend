@@ -8,10 +8,17 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { PORT } from './config/env.js';
+import dotenv from 'dotenv';
+import connectDB from './config/db.js';
+
+dotenv.config({ path: `.env` });
 
 const app = express();
-const port = 3000;
+const port = 3000
 
+
+connectDB()
 app.use(cors());
 app.use(express.json());
 
@@ -25,6 +32,6 @@ app.get('/', (req, res) => {
     res.render('index', { title: 'Task Flow Server' });
 });
 
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+app.listen(PORT, () => {
+    console.log(`Server running at :${PORT}`);
 });
