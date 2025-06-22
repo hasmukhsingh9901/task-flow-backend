@@ -16,7 +16,7 @@ const registerUser = async (req, res, next) => {
             return res.status(400).json({ message: 'Email already exists' });
         }
 
-        // Check if an admin already exists
+        
         if (role === 'admin') {
             const adminExists = await User.findOne({ role: 'admin' });
             if (adminExists) {
@@ -29,7 +29,7 @@ const registerUser = async (req, res, next) => {
             username,
             email,
             password: hashedPassword,
-            role: role === 'admin' ? 'admin' : 'user' // Default to "user" unless explicitly "admin"
+            role: role === 'admin' ? 'admin' : 'user' 
         });
         await user.save();
 
