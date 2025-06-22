@@ -1,94 +1,14 @@
-import {
-    adminMiddleware,
-    authMiddleware,
-} from "../middlewares/auth.middleware.js";
-import Task from "../models/task.model.js";
-import User from "../models/user.model.js";
+import { Router } from "express";
 
-const tasks = async (req, res, next) => {
-    try {
-        const { title, description, status } = req.body;
-        if (!title) {
-            return res.status(400).json({ message: "Title is required" });
-        }
 
-        const task = new Task({
-            title,
-            description,
-            status: status || "incomplete",
-            userId: req.user._id,
-        });
-        await task.save();
+const router = Router();
 
-        res.status(201).json({ message: "Task created successfully", task });
-    } catch (error) {
-        res.status(500).json({ message: "Server error" });
-    }
-};
+import { fetchAllTasks, removeTask, task, tasks } from "../controllers/task.controller.js";
+import { authMiddleware, adminMiddleware } from "../middlewares/auth.middleware.js";
 
-const fetchAllTasks = async (req, res, next) => {
-    try {
-        const { status, search } = req.query;
-        let query = { userId: req.user._id };
+router.get('/tasks', authMiddleware, fetchAllTasks);
+router.delete('/tasks/:taskId', authMiddleware, removeTask);
+router.get('/tasks/:taskId', authMiddleware, task);
+router.post('/tasks', authMiddleware, tasks);
 
-        if (status) {
-            query.status = status;
-        }
-
-        if (search) {
-            query.title = { $regex: search, $options: "i" };
-        }
-
-        const tasks = await Task.find(query);
-        res.status(200).json(tasks);
-    } catch (error) {
-        res.status(500).json({ message: "Server error" });
-    }
-};
-
-const task = async (req, res, next) => {
-    try {
-        const { taskId } = req.params;
-        const { title, description, status } = req.body;
-
-        const task = await Task.findById(taskId);
-        if (!task) {
-            return res.status(404).json({ message: 'Task not found' });
-        }
-
-        if (task.userId.toString() !== req.user._id.toString()) {
-            return res.status(403).json({ message: 'Unauthorized' });
-        }
-
-        task.title = title || task.title;
-        task.description = description || task.description;
-        task.status = status || task.status;
-        await task.save();
-
-        res.status(200).json({ message: 'Task updated successfully', task });
-    } catch (error) {
-        res.status(500).json({ message: 'Server error' });
-    }
-}
-
-const removeTask = async (req, res, next) => {
-    try {
-        const { taskId } = req.params;
-        const task = await Task.findById(taskId);
-
-        if (!task) {
-            return res.status(404).json({ message: 'Task not found' });
-        }
-
-        if (task.userId.toString() !== req.user._id.toString()) {
-            return res.status(403).json({ message: 'Unauthorized' });
-        }
-
-        await task.deleteOne();
-        res.status(200).json({ message: 'Task deleted successfully' });
-    } catch (error) {
-        res.status(500).json({ message: 'Server error' });
-    }
-}
-
-export { tasks, fetchAllTasks, task, removeTask };
+export default router;

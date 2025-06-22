@@ -11,7 +11,7 @@ import { PORT } from './config/env.js';
 import connectDB from './config/db.js';
 
 import authRouter from "./routes/user.routes.js"
-
+import taskRouter from "./routes/task.routes.js"
 
 const app = express();
 const port = 3000
@@ -31,7 +31,8 @@ app.get('/', (req, res) => {
     res.render('index', { title: 'Task Flow Server' });
 });
 
-app.use("auth/v1", authRouter)
+app.use("/auth/v1", authRouter)
+app.use("/task-flow/v1", taskRouter)
 
 app.listen(PORT, () => {
     console.log(`Server running at :${PORT}`);

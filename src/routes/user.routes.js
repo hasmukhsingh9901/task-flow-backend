@@ -10,4 +10,8 @@ router.post('/refresh', refreshToken);
 router.post('/logout', logoutUser);
 router.patch('/users/:userId/role', authMiddleware, adminMiddleware, toggleUserRole);
 
+router.patch('/users/:userId/role', authMiddleware, adminMiddleware, toggleUserRole);
+router.get('/user-logs', authMiddleware, adminMiddleware, getUserLogs);
+router.delete('/user-logs/:logId', authMiddleware, adminMiddleware, deleteUserLog);
+
 export default router;
