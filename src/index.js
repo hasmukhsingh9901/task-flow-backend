@@ -31,8 +31,9 @@ app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, '../views'));
 
 app.get('/', (req, res) => {
-    res.render('index', { title: 'Task Flow Server' });
+    res.json({ message: 'Task Flow Server is running!' });
 });
+
 
 app.use("/auth/v1", authRouter)
 app.use("/api/v1", taskRouter)
